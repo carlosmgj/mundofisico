@@ -21,3 +21,27 @@ CUESTION 6:
 	- La velocidad máxima que admite el SCL del modulo i2c es de 400KHz
 	- La velocidad máxima que admite el SCL del sensor i2c DS1621 es de 400KHz
 
+CUESTION 7:
+ 	- K_DS1621_ACCES_CONFIG=0xAC
+	- K_DS1621_CONTINUOUS_CONFIG=0x00
+	- K_DS1621_START_CONVERT=0xEE
+
+CUESTION 8:
+	- 1048576 para 1s
+
+CUESTION 9:
+	- K_DS1621_READ_TEMP=0xAA
+	- K_DS1621_READ_COUNTER=0xA8
+	- K_DS1621_READ_SLOPE=0xA9
+
+	- Temperatura: 16.5ºC
+	- Temperatura Alta Resolución: 16.416ºC
+
+CUESTION 10:
+	- Intenta evitar el bloqueo por software (hang) del microcontrolador. 
+	  Sin esta modificación, el código asume ciegamente que el hardware siempre recibirá un byte.
+	  La versión modificada permite que el código continúe su ejecución incluso si hay un fallo en 
+	  la comunicación, permitiendo al programa detectar el error 
+	  (mediante el if-else mencionado en el Código 1) y tomar medidas correctivas, 
+	  como reiniciar el bus o avisar de un fallo de lectura.
+
