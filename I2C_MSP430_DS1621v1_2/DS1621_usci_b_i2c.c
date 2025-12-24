@@ -23,24 +23,24 @@
 //******************************************************************************
 
 #include "driverlib.h"
-
-#define SLAVE_ADDRESS_DS1621 0xXX
+#define SLAVE_ADDRESS_DS1621 0x48
 
 // COMMANDS
-#define K_DS1621_ACCES_CONFIG 0xXX
-#define K_DS1621_READ_TEMP 0xXX
-#define K_DS1621_START_CONVERT 0xXX
-#define K_DS1621_READ_COUNTER 0xXX
-#define K_DS1621_READ_SLOPE 0xXX
+#define K_DS1621_ACCES_CONFIG 0xAC
+#define K_DS1621_READ_TEMP 0xAA
+#define K_DS1621_START_CONVERT 0xEE
+#define K_DS1621_READ_COUNTER 0xA8
+#define K_DS1621_READ_SLOPE 0xA9
+
 
 // OPERATION AND CONTROL
-#define K_DS1621_POL_CONFIG 0xXX
-#define K_DS1621_1SHOT_CONFIG 0xXX
-#define K_DS1621_CONTINUOUS_CONFIG 0xXX
+#define K_DS1621_POL_CONFIG 0x02
+#define K_DS1621_1SHOT_CONFIG 0x01
+#define K_DS1621_CONTINUOUS_CONFIG 0x00
 
 // CONSTANTS
 
-#define TEMP_CONVERSION_TIME X
+#define TEMP_CONVERSION_TIME 800000
 
 //*****************************************************************************
 //
