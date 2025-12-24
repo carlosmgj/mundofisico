@@ -1,0 +1,23 @@
+Conexión I2C del MSP430F5529 al sensor de temperatura DS1621
+
+CUESTIÓN 1: 
+	- Las opciones verdaderas son la a y la e
+
+CUESTIÓN 2: 
+	- Para una opción de escritura, la opción buena es la c -> dirección va desde 0x90 hasta 0x9E con el LSB a 0
+
+CUESTION 3: 
+	- La dirección de 7 bits (SLAVE_ADDRESS_DS1621) es de 0x48
+
+CUESTION 4: 
+	- GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN1 + GPIO_PIN2);
+	- USCI_B_I2C_initMaster(USCI_B1_BASE, &param);
+
+CUESTION 5: 
+	- Respuestas correctas son la c, la e y la f
+
+CUESTION 6: 
+	- La velocidad a la que se ha programado la señal de reloj del bus i2c es de 100KHz
+	- La velocidad máxima que admite el SCL del modulo i2c es de 400KHz
+	- La velocidad máxima que admite el SCL del sensor i2c DS1621 es de 400KHz
+

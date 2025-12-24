@@ -40,6 +40,7 @@
 
 // CONSTANTS
 
+//Esperamos aproximadamente 0.8s (a 1ms de MCLK) para dar tiempo a la conversion del DS1621
 #define TEMP_CONVERSION_TIME 800000
 
 //*****************************************************************************
@@ -61,6 +62,8 @@ void main ()
     //Assign I2C pins to USCI_B0
     // P3.0 (SDA) y P3.1 (SCL)
 
+    // Establecemos el valor en el Puerto 3, los pines 0 y 1.
+
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3,
                                          GPIO_PIN0 + GPIO_PIN1);
 
@@ -75,6 +78,7 @@ void main ()
     param.selectClockSource = USCI_B_I2C_CLOCKSOURCE_SMCLK;
     param.i2cClk = UCS_getSMCLK();
     param.dataRate = USCI_B_I2C_SET_DATA_RATE_100KBPS;
+    //Usamos el modulo 0, que es el que está rutado a los pines 3.0 y 3.1
     USCI_B_I2C_initMaster(USCI_B0_BASE, &param);
 
     //Specify slave address
