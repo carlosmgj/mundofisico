@@ -4,8 +4,7 @@ CUESTIÓN 1:
 	- Las opciones verdaderas son la a y la e
 
 CUESTIÓN 2: 
-	- Para una opción de escritura, la opción buena es la c -> dirección va desde 0x90 hasta 0x9E con el LSB a 0
-
+	- Para una opción de escritura, la opción buena es la c -> dirección va desde 0x48 hasta 0x4F
 CUESTION 3: 
 	- La dirección de 7 bits (SLAVE_ADDRESS_DS1621) es de 0x48
 
@@ -27,15 +26,15 @@ CUESTION 7:
 	- K_DS1621_START_CONVERT=0xEE
 
 CUESTION 8:
-	- 1048576 para 1s
+	- 786432
 
 CUESTION 9:
 	- K_DS1621_READ_TEMP=0xAA
 	- K_DS1621_READ_COUNTER=0xA8
 	- K_DS1621_READ_SLOPE=0xA9
 
-	- Temperatura: 16.5ºC
-	- Temperatura Alta Resolución: 16.416ºC
+	- Temperatura: 21.5ºC
+	- Temperatura Alta Resolución: 21.3125  ºC
 
 CUESTION 10:
 	- Intenta evitar el bloqueo por software (hang) del microcontrolador. 
