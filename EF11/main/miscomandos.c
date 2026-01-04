@@ -124,6 +124,7 @@ static int Cmd_adcRead(int argc, char **argv)
 	return 0;
 }
 
+
 static void register_Cmd_adcRead(void)
 {
     const esp_console_cmd_t cmd = {
