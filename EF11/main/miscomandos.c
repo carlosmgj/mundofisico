@@ -202,11 +202,12 @@ static int Cmd_temp_DS1621(int argc, char **argv)
 	float grados, grados2;
 
 	esp_err_t ret = ds1621_read_temperature_high_resolution(&grados);
-	ds1621_write_TH(25.5);
-	ds1621_write_TL(23.5);
-	ds1621_read_TH (&grados2);
+	// ds1621_write_TH(25.5);
+	// ds1621_write_TL(23.5);
+	// ds1621_read_TH (&grados2);
 
-	printf("temperatura DS1621: %f  %f\r\n",grados, grados2);
+	// printf("temperatura DS1621: %f  %f\r\n",grados, grados2);
+	printf("temperatura DS1621: %f\r\n",grados);
 
 
     return 0;
