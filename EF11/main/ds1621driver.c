@@ -73,7 +73,7 @@ esp_err_t ds1621_write_TH(float temperature)
     int16_t value;
    // Conversion de la temperatura a valores a escribir en el comando TH
     value= (int16_t)(temperature*2.0);
-    data_buffer[0]=(value>>1)&0xFF; // 8 bits m�s significativos
+    data_buffer[0]=(value>>1)&0xFF; // 8 bits mas significativos
     data_buffer[1]= (value & 0x01)<<7; // noveno bit
 
     if(ds1621_slave_address == 0)
@@ -96,7 +96,7 @@ esp_err_t ds1621_write_TL(float temperature)
     int16_t value;
    // Conversion de la temperatura a valores a escribir en el comando TH
     value= (int16_t)(temperature*2.0);
-    data_buffer[0]=(value>>1)&0xFF; // 8 bits m�s significativos
+    data_buffer[0]=(value>>1)&0xFF; // 8 bits mas significativos
     data_buffer[1]= (value & 0x01)<<7; // noveno bit
 
     if(ds1621_slave_address == 0)
@@ -199,15 +199,12 @@ esp_err_t ds1621_read_temperature_high_resolution(float* temperature)
     uint8_t count_remain, count_per_c;
     esp_err_t ret;
 
-    // 1. Leer temperatura base
     ret = ds1621_read_temperature_low_resolution(&t_read);
     if (ret != ESP_OK) return ret;
 
-    // 2. Leer Counter (Remain)
     ret = ds1621_read_counter(&count_remain);
     if (ret != ESP_OK) return ret;
 
-    // 3. Leer Slope (Count Per C)
     ret = ds1621_read_slope(&count_per_c);
     if (ret != ESP_OK) return ret;
 
