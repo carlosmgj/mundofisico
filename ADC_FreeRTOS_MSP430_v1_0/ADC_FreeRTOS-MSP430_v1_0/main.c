@@ -128,6 +128,9 @@ static SemaphoreHandle_t mutex_send;
 
 /*-----------------------------------------------------------*/
 
+//CMGJ: Voltaje de referencia por defecto de 2V
+VREFS_t v_ref = VREF_20;
+
 
 //Funcion main
 void main( void )
@@ -191,6 +194,7 @@ void main( void )
 // Los datos que se envian están sin calibrar
 // se mandan en crudo
 
+//CMGJ: Añadida la compensacion de la temperatura
 static void ReadADCTask( void *pvParameters )
 {
 
@@ -203,6 +207,24 @@ static void ReadADCTask( void *pvParameters )
         AnalogRead(&data, portMAX_DELAY);
         header.parametro.analogData=data;
         header.comando=COMANDO_ADC_DATA;
+        //Necesitamos capturar la tension de referencia escogida y pasarsela a la funcion de compensación
+        header.parametro.adcconf.index_ref = v_ref;
+
+        //CMGJ: Calculo de valores de temperatura calibrados.
+        int16_t Temp_Cal= AnalogTempCompensate ( data.TempRef, v_ref);
+        int16_t chan0_Ref = AnalogValueCompensate(data.Chan0Ref, v_ref);
+        int16_t chan0_Vcc = AnalogValueCompensate(data.Chan0Vcc, v_ref);
+        int16_t batt_Ref = AnalogValueCompensate(data.BattRef, v_ref);
+        int16_t batt_Vcc = AnalogValueCompensate(data.BattVcc, v_ref);
+
+        //CMGJ: Actualización valores calibrados
+        data.Chan0Ref = chan0_Ref;
+        data.Chan0Vcc = chan0_Vcc;
+        data.BattRef  = batt_Ref;
+        data.BattVcc  = batt_Vcc;
+
+
+
         xSemaphoreTake( mutex_send,portMAX_DELAY);
         cdcSendData((uint8_t*)&header, sizeof(header), CDC0_INTFNUM, portMAX_DELAY);
         xSemaphoreGive( mutex_send );

@@ -243,7 +243,7 @@ inline BaseType_t AnalogRead(conversionData *ptrtodato, TickType_t ticks)
  * Calculos realizados para la referencia por defecto 2.0V
  */
 
-int16_t AnalogTempCompensate(uint16_t lectura)
+int16_t AnalogTempCompensate(uint16_t lectura, VREFS_t v_ref )
 {
 
 	//Cálculos aritmética punto flotante. Carga elevada para la CPU del uC
@@ -254,10 +254,29 @@ int16_t AnalogTempCompensate(uint16_t lectura)
 //	temporal+=30.0;
 //	return ((int16_t)temporal); // Se devuelve un entero se podría cambiar la función para devolver float
 
+    int32_t temp30, temp85 = 0;
+    switch (v_ref)
+    {
+    case 0: // CMGJ: Para referencia de 1,5V
+        temp30= (int32_t)adccal->adc_ref15_30_temp;
+        temp85= (int32_t)adccal->adc_ref15_85_temp;
+        break;
+    case 1: // CMGJ: Para referencia de 2V
+            temp30= (int32_t)adccal->adc_ref15_30_temp;
+            temp85= (int32_t)adccal->adc_ref15_85_temp;
+            break;
+    case 2: // CMGJ: Para referencia de 2,5V
+            temp30= (int32_t)adccal->adc_ref15_30_temp;
+            temp85= (int32_t)adccal->adc_ref15_85_temp;
+            break;
+    default:
+        return 0;
+    }
+
     //Cálculos en aritmética entera. Primero se realizan todas las operaciones de multiplicación y luego la de división
     int32_t temporal;
-    temporal=(((int32_t)lectura&0xFFF)-((int32_t)adccal->adc_ref20_30_temp))*(85-30);
-    temporal=temporal/(adccal->adc_ref20_85_temp-adccal->adc_ref20_30_temp);
+    temporal=(((int32_t)lectura&0xFFF)-temp30)*(85-30);
+    temporal=temporal/(temp85-temp30);
     temporal+=30;
     return ((int16_t)temporal);
 
@@ -270,7 +289,7 @@ int16_t AnalogTempCompensate(uint16_t lectura)
  * @param lectura: El dato "en crudo" que hemos leido del conversor
  * @return valor corregido (multiplicado por 16 --> los 12 bits mas significativos son la medida y los 4 últimos, la parte decimal).
  */
-uint16_t AnalogValueCompensate(uint16_t lectura)
+uint16_t AnalogValueCompensate(uint16_t lectura, VREFS_t v_ref )
 {
 	int32_t temporal;
 

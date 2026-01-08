@@ -31,6 +31,12 @@ typedef struct {
 
 } conversionData;
 
+// CMGJ: Typedef para los voltajes, Se hace así porque desde la aplicación de QT el orden está establecido así y ya manda estos datos.
+typedef enum {
+    VREF_15 = 0,
+    VREF_20,
+    VREF_25
+} VREFS_t;
 
 
 void AnalogInit(void);
@@ -38,8 +44,9 @@ void AnalogStart(uint16_t period, uint8_t mode);
 void AnalogConfigADC(uint8_t mode );
 void AnalogStop(void);
 inline BaseType_t AnalogRead(conversionData *ptrtodato, TickType_t ticks);
-//UMA: cuidado, ahora mismo lee mezclados las temperaturas y los otros datos.
-int16_t AnalogTempCompensate(uint16_t lectura);
-uint16_t AnalogValueCompensate(uint16_t lectura);
+
+//CMGJ: Añadimos el parámetro de Vref para poder discernir qué referencia se está usando
+int16_t AnalogTempCompensate(uint16_t lectura, VREFS_t v_ref);
+uint16_t AnalogValueCompensate(uint16_t lectura, VREFS_t v_ref);
 
 #endif /* ANALOG_H_ */
