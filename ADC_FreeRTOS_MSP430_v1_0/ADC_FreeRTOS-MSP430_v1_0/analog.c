@@ -171,7 +171,9 @@ void AnalogConfigADC(uint8_t mode )
 		case 1:
 		    ADC12_A_init (ADC12_A_BASE,ADC12_A_SAMPLEHOLDSOURCE_3, ADC12_A_CLOCKSOURCE_ADC12OSC, ADC12_A_CLOCKDIVIDER_1);
 		    ADC12_A_enable(ADC12_A_BASE);
-		    //ADC12_A_setupSamplingTimer ();
+
+		    //CMGJ: Configuracion de ADC para disparo por timer cambiando los bits correspondientes:
+		    ADC12_A_setupSamplingTimer(ADC12_A_BASE , ADC12_A_CYCLEHOLD_1024_CYCLES, ADC12_A_CYCLEHOLD_1024_CYCLES, ADC12_A_MULTIPLESAMPLESDISABLE);
 
 		    break;
 		}
@@ -192,21 +194,45 @@ void AnalogStart(uint16_t period, uint8_t mode  )
 
         //Arranca la conversion
          ADC12_A_startConversion(ADC12_A_BASE,ADC12_A_MEMORY_0,ADC12_A_SEQOFCHANNELS);
-
-         //Habilita la interrupción del último elemento de la secuencia
-         ADC12_A_clearInterrupt(ADC12_A_BASE,
-                                   ADC12IFG5);
-         ADC12_A_enableInterrupt(ADC12_A_BASE,
-                                    ADC12IE5);
         break;
     }
     //Disparo Timer
     case 1:{
 
+        // Vamos a configurar el Timer en Modo UP, con el CCR correspondiente en modo comparación.
+
+        Timer_B_initUpModeParam UpMode_Params = {0}; //CMGJ Inicializamos todos los campos numéricos a 0 y el bool a False.
+        UpMode_Params.clockSource = TIMER_B_CLOCKSOURCE_ACLK; // CMGJ: Fuente de Timer B es ACLK (Por defecto 32,768Hz)
+        // CMGJ: Por defecto el divisor del reloj está en 1. La siguiente línea no es necesaria.
+        //ConfigTimerB.clockDivider = TIMER_B_CLOCKSOURCE_DIVIDER_1;
+        UpMode_Params.timerPeriod = period; //Limited to 16 bits[uint16_t]
+
+        Timer_B_initUpMode(TIMER_B0_BASE, &UpMode_Params);
+
+        Timer_B_initCompareModeParam CompareMode_Params = {0};
+        CompareMode_Params.compareRegister = TIMER_B_CAPTURECOMPARE_REGISTER_1; // Vamos a usar el CCR1 como se indica en la guía
+        CompareMode_Params.compareValue = period/2; //Señal PWM Cuadrada
+        CompareMode_Params.compareOutputMode = TIMER_B_OUTPUTMODE_RESET_SET;
+        // Modo Ascendente + Reset Set : Output is reset when the timer counts to the TAxCCRn value. It is set when the timer counts to the TAxCCR0
+        // Con modo ascendente el Duty Cycle es =CCR0/(CCR0+1)
+
+        Timer_B_initCompareMode(TIMER_B0_BASE, &CompareMode_Params);
+        Timer_B_startCounter(TIMER_B0_BASE,TIMER_B_UP_MODE);
+
+        //Arranca la conversion
+        ADC12_A_startConversion(ADC12_A_BASE,ADC12_A_MEMORY_0,ADC12_A_REPEATED_SEQOFCHANNELS);
         break;
     }
 
+    default:
+        return;
     }
+
+    //Habilita la interrupción del último elemento de la secuencia
+     ADC12_A_clearInterrupt(ADC12_A_BASE,
+                               ADC12IFG5);
+     ADC12_A_enableInterrupt(ADC12_A_BASE,
+                                ADC12IE5);
 
 
 
@@ -257,18 +283,18 @@ int16_t AnalogTempCompensate(uint16_t lectura, VREFS_t v_ref )
     int32_t temp30, temp85 = 0;
     switch (v_ref)
     {
-    case 0: // CMGJ: Para referencia de 1,5V
+    case VREF_15: // CMGJ: Para referencia de 1,5V
         temp30= (int32_t)adccal->adc_ref15_30_temp;
         temp85= (int32_t)adccal->adc_ref15_85_temp;
         break;
-    case 1: // CMGJ: Para referencia de 2V
-            temp30= (int32_t)adccal->adc_ref15_30_temp;
-            temp85= (int32_t)adccal->adc_ref15_85_temp;
-            break;
-    case 2: // CMGJ: Para referencia de 2,5V
-            temp30= (int32_t)adccal->adc_ref15_30_temp;
-            temp85= (int32_t)adccal->adc_ref15_85_temp;
-            break;
+    case VREF_20: // CMGJ: Para referencia de 2V
+        temp30= (int32_t)adccal->adc_ref20_30_temp;
+        temp85= (int32_t)adccal->adc_ref20_85_temp;
+        break;
+    case VREF_25: // CMGJ: Para referencia de 2,5V
+        temp30= (int32_t)adccal->adc_ref25_30_temp;
+        temp85= (int32_t)adccal->adc_ref25_85_temp;
+        break;
     default:
         return 0;
     }
@@ -278,7 +304,7 @@ int16_t AnalogTempCompensate(uint16_t lectura, VREFS_t v_ref )
     temporal=(((int32_t)lectura&0xFFF)-temp30)*(85-30);
     temporal=temporal/(temp85-temp30);
     temporal+=30;
-    return ((int16_t)temporal);
+    return (0xFFFF&((uint16_t)temporal));
 
 }
 
@@ -292,8 +318,34 @@ int16_t AnalogTempCompensate(uint16_t lectura, VREFS_t v_ref )
 uint16_t AnalogValueCompensate(uint16_t lectura, VREFS_t v_ref )
 {
 	int32_t temporal;
+	uint16_t factor_vref = 0;
+	switch (v_ref)
+	    {
+	    case VREF_15: // CMGJ: Para referencia de 1,5V
+	        factor_vref = refcal->ref_ref15;
+	        break;
+	    case VREF_20: // CMGJ: Para referencia de 2V
+	        factor_vref = refcal->ref_ref20;
+	        break;
+	    case VREF_25: // CMGJ: Para referencia de 2,5V
+	        factor_vref = refcal->ref_ref25;
+	        break;
+	    default:
+	        return 0;
+	    }
 
-	// ADC(calibrated) = ( (ADC(raw) x CAL_ADC15VREF_FACTOR / 2^15) x (CAL_ADC_GAIN_FACTOR / 2^15) ) + CAL_ADC_OFFSET
+
+	// CMGJ: Aplicacion de la formila como se indica en la guia usando máscaras y desplazamientos
+	temporal = ((int32_t)(lectura & 0x0FFF)) << 1;
+	temporal = temporal * factor_vref;
+	temporal >>= 16;
+	temporal <<= 1;
+	temporal = temporal * adccal->adc_gain_factor;
+	temporal >>= 16;
+	temporal += adccal->adc_offset;
+
+
+    return (0xFFFF&((uint16_t)temporal));
 }
 
 

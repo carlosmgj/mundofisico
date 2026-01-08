@@ -190,9 +190,7 @@ void main( void )
 
 
 /*-----------------------------------------------------------*/
-// Tarea que lee los datos del ADC y los envía al PC
-// Los datos que se envian están sin calibrar
-// se mandan en crudo
+
 
 //CMGJ: Añadida la compensacion de la temperatura
 static void ReadADCTask( void *pvParameters )
@@ -218,6 +216,7 @@ static void ReadADCTask( void *pvParameters )
         int16_t batt_Vcc = AnalogValueCompensate(data.BattVcc, v_ref);
 
         //CMGJ: Actualización valores calibrados
+        data.TempRef = Temp_Cal;
         data.Chan0Ref = chan0_Ref;
         data.Chan0Vcc = chan0_Vcc;
         data.BattRef  = batt_Ref;
