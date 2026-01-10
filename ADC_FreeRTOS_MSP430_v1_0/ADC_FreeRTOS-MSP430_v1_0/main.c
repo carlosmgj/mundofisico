@@ -208,19 +208,15 @@ static void ReadADCTask( void *pvParameters )
         //Necesitamos capturar la tension de referencia escogida y pasarsela a la funcion de compensación
         header.parametro.adcconf.index_ref = v_ref;
 
-        //CMGJ: Calculo de valores de temperatura calibrados.
+        //CMGJ: Calculo de valores de temperatura y de tension calibrados.
         int16_t Temp_Cal= AnalogTempCompensate ( data.TempRef, v_ref);
         int16_t chan0_Ref = AnalogValueCompensate(data.Chan0Ref, v_ref);
-        int16_t chan0_Vcc = AnalogValueCompensate(data.Chan0Vcc, v_ref);
         int16_t batt_Ref = AnalogValueCompensate(data.BattRef, v_ref);
-        int16_t batt_Vcc = AnalogValueCompensate(data.BattVcc, v_ref);
 
         //CMGJ: Actualización valores calibrados
         data.TempRef = Temp_Cal;
         data.Chan0Ref = chan0_Ref;
-        data.Chan0Vcc = chan0_Vcc;
         data.BattRef  = batt_Ref;
-        data.BattVcc  = batt_Vcc;
 
 
 
@@ -342,7 +338,7 @@ static void prvUSBCDCTask( void *pvParameters )
         case COMANDO_SETREF:
         {
 
-            //Antes de cambiar la referencia es necesario apagar el ADC
+            //Antes de cambia r la referencia es necesario apagar el ADC
             AnalogStop();
 
             while(REF_BUSY == Ref_isRefGenBusy(REF_BASE));
